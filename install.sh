@@ -6,9 +6,9 @@
 ############################################
 
 # Reset variables
-VERBOSE=0
-INTERACTIVE=0
-CONFIGURE=1
+VERBOSE=1
+INTERACTIVE=1
+CONFIGURE=0
 
 # Helpers
 redir() {
@@ -37,13 +37,13 @@ while getopts "hvin" opt; do
       exit 0
       ;;
     v)
-      VERBOSE=1
+      VERBOSE=0
       ;;
     i)
-      INTERACTIVE=1
+      INTERACTIVE=0
       ;;
     n)
-      CONFIGURE=0
+      CONFIGURE=1
       ;;
   esac
 done
