@@ -15,7 +15,7 @@ dtoverlay=vc4-kms-v3d,noaudio
 
 [all]
 # Pi-Repeater-8X
-dtoverlay=i2c_arm=on
+dtparam=i2c_arm=on
 dtparam=i2c1=on
 
 ##### MAIN BOARD #####
