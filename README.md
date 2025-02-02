@@ -10,6 +10,9 @@ SVXLink was updated since the last commit to [OpenRepeater/svxlink-sample-config
 
 ...
 
+# add noaudio
+dtoverlay=vc4-kms-v3d,noaudio
+
 [all]
 # Pi-Repeater-8X
 dtoverlay=i2c_arm=on
