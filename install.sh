@@ -144,6 +144,8 @@ tee -a /etc/modules << EOF
 i2c-dev
 EOF
 
+ln -s /dev/null /etc/udev/rules.d/60-gpiochip4.rules
+
 echo "Boot configuration updated."
 
 
