@@ -12,15 +12,15 @@ CONFIGURE=0
 
 # Helpers
 redir() {
-  if [ $VERBOSE ]; then
+  if [ $VERBOSE == 1 ]; then
     $@ > /dev/null 2>&1
   else
-    $@ 
+    $@ >
   fi
 }
 
 pause() {
-  if [ $INTERACTIVE ]; then
+  if [ $INTERACTIVE == 0 ]; then
     read -p "Press [Enter] to continue..."
   fi
 }
@@ -63,30 +63,13 @@ pause
 
 # Install dependencies
 echo "Installing dependencies..."
-redir apt-get install gcc g++ make cmake -y
-redir apt-get install groff -y 
-redir apt-get install gzip -y
-redir apt-get install doxygen -y
-redir apt-get install tar -y 
-redir apt-get install git -y 
-redir apt-get install libsigc++-2.0-dev -y
-redir apt-get install libpopt-dev -y
-redir apt-get install tcl tcllib tcl-dev -y
-redir apt-get install libgcrypt20-dev -y
-redir apt-get install libasound2-dev -y
-redir apt-get install libgsm1-dev -y
-redir apt-get install libjsoncpp-dev -y
-redir apt-get install libspeex-dev -y
-redir apt-get install librtlsdr-dev -y
-redir apt-get install libgpiod-dev -y
-redir apt-get install qtbase5-dev qt5-qmake libqt5widgets5 qttools5-dev -y
-redir apt-get install libssl-dev -y
-redir apt-get install alsa-utils -y
-redir apt-get install libvorbis-dev -y 
-redir apt-get install libopus-dev opus-tools -y 
-redir apt-get install libcurl4-openssl-dev -y
-# QoL because I like tmux
-redir apt-get install tmux -y
+redir apt-get install -y gcc g++ make cmake groff gzip doxygen tar git \
+  libsigc++-2.0-dev libpopt-dev tcl tcllib tcl-dev libgcrypt20-dev \
+  libasound2-dev libgsm1-dev libjsoncpp-dev libspeex-dev librtlsdr-dev \
+  libgpiod-dev qtbase5-dev qt5-qmake libqt5widgets5 qttools5-dev libssl-dev \
+  alsa-utils libvorbis-dev libopus-dev opus-tools libcurl4-openssl-dev
+# Optional, for QoL and debugging
+redir apt-get install tmux i2c-tools -y
 echo "Dependencies installed."
 pause
 
@@ -105,7 +88,7 @@ echo "Compiling SVXLink..."
 redir rm -r /usr/local/src/svxlink
 redir mkdir /usr/local/src/svxlink 
 redir chown svxlink:daemon /usr/local/src/svxlink
-redir sudo -u svxlink -- bash -c \
+sudo -u svxlink -- bash -c \
 'cd /usr/local/src/ && \
 git clone https://github.com/sm0svx/svxlink.git && \
 mkdir svxlink/src/build && \
@@ -123,11 +106,14 @@ pause
 
 # Download the voice files
 echo "Downloading voice files..."
-+
+(cd /usr/share/svxlink/sounds/ && \
+curl -LO https://github.com/sm0svx/svxlink-sounds-en_US-heather/releases/download/24.02/svxlink-sounds-en_US-heather-16k-24.02.tar.bz2 && \
+tar xvjf svxlink-sounds-en_US-heather-16k-24.02.tar.bz2 && \
+ln -s en_US-heather-16k en_US)
 echo "Voice files downloaded."
 pause
 
-if [ $CONFIGURE ]; then
+if [ $CONFIGURE == 0 ]; then
   # Copy the configuration files
   echo "Copying configuration files..."
   cp -r $SCRIPT_DIR/svxlink/* /etc/svxlink/
@@ -138,8 +124,28 @@ fi
 
 # Update config.txt
 echo "Updating boot configuration..."
+cp /boot/firmware/config.txt /boot/firmware/config.txt.bak
 sed -i 's/dtparam=audio=on/#dtparam=audio=on/' /boot/firmware/config.txt
 sed -i 's/dtoverlay=vc4-kms-v3d/dtoverlay=vc4-kms-v3d,noaudio/' /boot/firmware/config.txt
+sed -i /boot/firmware/config.txt -e "s#\#dtparam=i2c_arm=on#dtparam=i2c_arm=on#"
+tee -a /boot/firmware/confit.txt << EOF
+##### Pi-Repeater 8x Configs #####
+dtparam=i2c1=on
+
+# MAIN BOARD
+dtoverlay=mcp23017,addr=0x27,gpiopin=23
+dtoverlay=mcp23017,addr=0x26,gpiopin=24
+dtoverlay=mcp23017,addr=0x25,gpiopin=25
+# RELAY BOARD
+dtoverlay=mcp23017,addr=0x24,gpiopin=13
+EOF
+
+tee -a /etc/modules << EOF
+i2c-dev
+EOF
+
+echo "Boot configuration updated."
+
 
 echo "Installation complete!"
 echo "Please restart the system to apply changes."
