@@ -16,7 +16,7 @@ fi
 
 #Install the needed support applications
 
-apt-get install python3-smbus python3-pigpio python3-pip python3-rpi.gpio rpi.gpio-common python3-inotify
+apt-get install  -y python3-smbus python3-pigpio python3-pip python3-rpi.gpio rpi.gpio-common python3-inotify
 
 # Enable pigpio daemon
 systemctl enable pigpiod
