@@ -6,15 +6,20 @@
 
 # SCRIPT CONTRIBUTORS:
 # Aaron Crawford (N3MBH), Dan Loranger (KG7PAR)
+# Updates by Keith Tweed (VA6MPL)
+
+# Check if the user is root
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
 
 #Install the needed support applications
 
-apt-get install python-smbus python-pigpio python-pip RPi.GPIO
-
-pip install inotify
+apt-get install python3-smbus python3-pigpio python3-pip python3-rpi.gpio rpi.gpio-common python3-inotify
 
 # Enable pigpio daemon
- systemctl enable pigpiod
+systemctl enable pigpiod
 
 # apt-get install python3-smbus python3-pigpio  python-pip
 # pip3 install inotify
